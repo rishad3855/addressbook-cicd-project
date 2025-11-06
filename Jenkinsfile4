@@ -28,7 +28,7 @@ pipeline{
         }
          stage("deploy the project on tomcat"){
             steps{
-                sh "/var/lib/jenkins/workspace/Poll-scm-project/target/addressbook.war /home/ubuntu/apache-tomcat-9.0.111/webapps"
+                sh "mv /var/lib/jenkins/workspace/Poll-scm-project/target/addressbook.war /home/ubuntu/apache-tomcat-9.0.111/webapps"
             }
         }
     }

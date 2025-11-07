@@ -1,4 +1,4 @@
-ffffgdddfgrdfvcheckingpipeline {
+ggggffffgdddfgrdfvcheckingpipeline {
     agent any
     stages {
         stage("checkout code from github") {

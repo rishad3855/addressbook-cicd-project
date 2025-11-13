@@ -1,5 +1,6 @@
 FROM amazoncorretto
 FROM maven:3.8.4-openjdk-11-slim AS build
+WORKDIR /app
 RUN apt-get update && apt-get install -y git
 RUN git clone https://github.com/rishad3855/addressbook-cicd-project.git
 RUN mvn compile

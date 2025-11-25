@@ -1,0 +1,32 @@
+nginx_service/tasks/main.yml
+
+---
+- name: Install Nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update cache: yes
+
+- name: Get Nginx version
+  ansible.builtin. command: "nginx -v"
+    register: nginx_version
+    ignore_errors: true
+
+- name: Show Nginx version
+  ansible.builtin. debug:
+   msg: "{{ nginx_version.stderr } } "
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+nginx_service/handlers/main.yml
+---
+- name: Reload Nginx
+  ansible.builtin.service:
+    name: nginx
+    state: reloaded
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+site.yml
+
+---
+- hosts: all
+  become: true
+  roles:
+    - nginx_service

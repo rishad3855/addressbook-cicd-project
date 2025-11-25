@@ -1,0 +1,63 @@
+---
+- hosts: all
+  become: true
+
+  vars:
+    build_dir: /opt/build/addressbook
+    repo_url: "https://github.com/rishad3855/addressbook-cicd-project.git"
+    repo_dest: "/opt/build/addressbook"
+    war_search_dir: "/opt/build/addressbook/addressbook-cicd-project/target"
+    tomcat_war_dest: "/var/lib/tomcat9/webapps/demo.war"
+    tomcat war src: "/opt/build/addressbook/target/addressbook.war"
+
+  tasks:
+    - name: 1. Update package cache and install prerequisites (Java, Maven, Git)
+      ansible.builtin.apt:
+        name:
+          - update-notifier-common
+          - git
+          - openjdk-17-jdk
+          - tomcat10
+          - maven
+        state: latest
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: 2. Ensure Build Directory Exists
+      ansible.builtin.file:
+        path: "{{ build_dir }}"
+        state: directory
+        owner: "{{ devops | default('root') }}"
+        group: "{{ devops | default('root') }}"
+        mode: 'u=rwx,g=rx,o=rx'
+
+    - name: 3. Clone the Java Application GitHub Repository
+      ansible.builtin.git:
+        repo: "{{ repo_url }}"
+        dest: "{{ repo_dest }}"
+        version: "master"
+
+    - name: 4. Execute Maven Clean Package Build
+      ansible.builtin.command: "mvn clean package -DskipTests"
+      args:
+        chdir: "{{ repo_dest }}"
+      register: maven_build_result
+
+    - name: 5. Display Maven Build Status
+      ansible.builtin.debug:
+        msg: "Maven Build Completed. Status: {{ maven_build_result.stdout_lines | last }}"
+
+
+    - name: 7. Copy the built WAR artifact to the Tomcat webapps directory
+      ansible.builtin.copy:
+        src: "{{ tomcat war src } }"
+        dest: "{{ tomcat_war_dest }}"
+        owner: "tomcat"
+        remote src: yes
+
+     - name: Restart Tomcat10 after deployment
+       ansible.builtin.service:
+         name: tomcat10
+         state: restarted
+    
+
